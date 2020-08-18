@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "build_rrt.cpp"
+
 using namespace cv;
 using namespace std;
 
@@ -17,6 +19,8 @@ int main()
 		std::cout << "Could not read the image: " << image_path << std::endl;
 		return 1;
 	}
+	///Set up RRT
+	RRT myRRT = RRT(img.cols, img.rows, vec2(0.f, img.rows/2), vec2(img.cols, img.rows/2), 150);
 
 	/// Set up the pedestrian detector --> let us take the default one
 	HOGDescriptor hog;
@@ -33,11 +37,13 @@ int main()
 	cout << "Found " << found.size() << " people" << endl;
 
 	/// draw detections and store location
-	for (size_t i = 0; i < found.size(); i++)
-	{
+	for (size_t i = 0; i < found.size(); i++) {
 		Rect r = found[i];
-		rectangle(img, found[i], cv::Scalar(0, 0, 255), 1);
-
+		//rectangle(img, found[i], cv::Scalar(0, 0, 255), 1);
+		float radius = min(r.width, r.height) / 2.f;
+		Point center = Point(r.x + r.width / 2, r.y + r.height / 2);
+		myRRT.addObstacle(vec2(center.x, center.y), radius);
+		circle(img, center, (int)radius, cv::Scalar(0, 0, 255), 1);
 	}
 
 	imshow("Display window", img);

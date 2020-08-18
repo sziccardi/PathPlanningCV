@@ -1,6 +1,5 @@
 #include <cmath>
 #include <vector>
-#include <hash_map>
 #include <iostream>
 
 #include "data_utils.cpp"
@@ -11,7 +10,7 @@ class RRT {
 public:
 	RRT() { initEnvironment(); }
 
-	RRT(float confWidth, float confHeight, vec2 startPos, vec2 goalPos, int numVerts) {
+	RRT(int confWidth, int confHeight, vec2 startPos, vec2 goalPos, int numVerts) {
 		mWidth = confWidth;
 		mHeight = confHeight;
 
@@ -52,12 +51,12 @@ private:
 	vec2 mGoalPos = vec2(-1.0, -1.0);
 	vector<pair<vec2, float>> mObstacles;
 	float dq = 10;
-	float mWidth = 0.f;
-	float mHeight = 0.f;
+	int mWidth = 0;
+	int mHeight = 0;
 
 	vec2 randConf() {
-		float randX = rand() % ((int)mWidth);
-		float randY = rand() % ((int)mHeight);
+		float randX = rand() % mWidth;
+		float randY = rand() % mHeight;
 		vec2 myPos = vec2(randX, randY);
 		return myPos;
 	}
@@ -81,7 +80,7 @@ private:
 		//if we cant step that way at all, return a failed value (-1, -1)
 
 		//is it the same point?
-		vec2 diffVec = near.vecSubtract(rand);
+		vec2 diffVec = near - rand;
 		if (diffVec.vecLength() <= 1.0) {
 			return vec2(-1.0, -1.0);
 		}
@@ -94,13 +93,13 @@ private:
 		float tMin = 1;
 		for (auto obstacle : mObstacles) {
 			//what if the segment starts in the obstacle?
-			if ((obstacle.first.vecSubtract(near)).vecLength() <= obstacle.second) {
+			if ((obstacle.first - near).vecLength() <= obstacle.second) {
 				return vec2(-1.0, -1.0);
 			}
 
 			float a = diffVec.vecLength() * diffVec.vecLength();
-			float b = -2 * (near.vecSubtract(obstacle.first)).dotProduct(diffVec);
-			float c = (near.vecSubtract(obstacle.first)).vecLength() * (near.vecSubtract(obstacle.first)).vecLength() - obstacle.second * obstacle.second;
+			float b = -2 * (near - obstacle.first).dotProduct(diffVec);
+			float c = (near- obstacle.first).vecLength() * (near - obstacle.first).vecLength() - obstacle.second * obstacle.second;
 
 			float d = b * b - 4 * a * c;
 			if (d > 0.0) {
@@ -131,7 +130,7 @@ private:
 
 	void letsBuildRRT() {
 		Node* newNode = new Node(mInitPos, nullptr);
-		while ((mGoalPos.vecSubtract(newNode->mPosition)).vecLength() > 7.5) {
+		while ((mGoalPos - newNode->mPosition).vecLength() > 7.5) {
 			vec2 randPos = randConf();
 			Node* nearNode = nearestNode(randPos);
 			vec2 tempNewPos = newConf(nearNode->mPosition, randPos);
