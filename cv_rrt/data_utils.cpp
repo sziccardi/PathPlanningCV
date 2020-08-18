@@ -88,6 +88,22 @@ public:
 		mPosition = position;
 		mParent = parent;
 	}
+	~Node() {
+		if (mParent) {
+			auto p = mParent;
+			delete(p);
+			mParent = nullptr;
+		}
+		for (auto it = mConnectedNodes.begin(); it != mConnectedNodes.end(); ) {
+			if (true) {
+				delete * it;
+				it = mConnectedNodes.erase(it);
+			} else {
+				++it;
+			}
+		}
+		mConnectedNodes.clear();
+	}
 
 	void addConnection(Node* newNode) {
 		mConnectedNodes.push_back(newNode);
@@ -97,23 +113,41 @@ public:
 class Tree {
 
 private:
-	unordered_map<vec2, Node*> myList = unordered_map<vec2, Node*>();
+	unordered_map<vec2, Node*> myList;
 
 public:
+	Tree() {
+		myList = unordered_map<vec2, Node*>();
+	}
+	~Tree() {
+		for (auto it : myList) {
+			delete(it.second);
+		}
+		myList.clear();
+	}
+
 	Node* getNode(vec2 pos) {
 		return myList.at(pos);
 	}
 
 	void addVertex(Node* myNode) {
-		myList.insert_or_assign(myNode->mPosition, myNode);
+		if (!myNode) {
+			cout << "You tried to add an empty node! So naughty.." << endl;
+			return;
+		}
+		myList.insert(make_pair(myNode->mPosition, myNode));
 	}
 
 	void addEdge(Node* source, Node* destination) {
-		if (!source || !destination) return;
+		if (!source || !destination) {
+			cout << "You tried to connnect empty nodes! So naughty.." << endl;
+			return;
+		}
 
 		auto finding = myList.find(source->mPosition);
-		if (finding != myList.end()) {
-			cout << "Couldn't add that edge because its from a real vertex." << endl;
+		if (finding == myList.end()) {
+			cout << "Couldn't add that edge because its not from a real vertex." << endl;
+			return;
 		}
 		finding = myList.find(destination->mPosition);
 		if (finding != myList.end()) {
