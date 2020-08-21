@@ -130,7 +130,7 @@ private:
 
 	void letsBuildRRT() {
 		Node* newNode = new Node(mInitPos, nullptr);
-		while ((mGoalPos - newNode->mPosition).vecLength() > 50.f) {
+		while ((mGoalPos - newNode->mPosition).vecLength() > 10.f) {
 			vec2 randPos = randConf();
 			Node* nearNode = nearestNode(randPos);
 			vec2 tempNewPos = newConf(nearNode->mPosition, randPos);
