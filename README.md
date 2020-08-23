@@ -6,8 +6,8 @@ COMPLETED so far:
 * RRT implemented.
 * OpenCV imported.
 * OpenCV built in pedestrian detector imported.
+* Interpret detected pedestrians as obstacles and run RRT.
 
 TO DO still:
-* Interpret detected pedestrians as obstacles and run RRT.
 * Implement RRT*.
 * Integrate ML.
